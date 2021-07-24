@@ -23,27 +23,6 @@ fun main(args: Array<String>) {
 }
 
 @RestController
-class MessageResource(val service: MessageService) {
-	@GetMapping()
-	fun index(): List<Message> = service.findMessages()
-
-	@PostMapping()
-	fun post(@RequestBody message: Message) {
-		service.post(message)
-	}
-}
-
-@Service
-class MessageService(val db: MessageRepository) {
-
-	fun findMessages(): List<Message> = db.findMessages()
-
-	fun post(message: Message){
-		db.save(message)
-	}
-}
-
-@RestController
 class TransferResource(val service: TransferService) {
 	@GetMapping("/transfer")
 	fun index(): List<Transfer> = service.findTransfers()
@@ -63,11 +42,6 @@ class TransferService(val db: TransfersRepository){
 	fun post(transfer: Transfer){
 		db.save(transfer)
 	}
-}
-
-interface MessageRepository : CrudRepository<Message, String>{
-	@Query("select * from messages")
-	fun findMessages(): List<Message>
 }
 
 interface TransfersRepository : CrudRepository<Transfer, String>{
