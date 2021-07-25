@@ -57,7 +57,7 @@ class TransferService(val db: TransfersRepository, val udb: UsersRepository){
 			throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong token")
 		if(udb.findUser(transferRequest.recipientid) == null)
 			throw ResponseStatusException(HttpStatus.NOT_FOUND, "Can't find recipient ID")
-		if(sender.balance < transferRequest.amount)
+		if(sender.balance < transferRequest.amount || transferRequest.amount <= 0)
 			throw ResponseStatusException(HttpStatus.INSUFFICIENT_STORAGE, "Insufficient funds")
 		udb.updateBalance(transferRequest.senderid, transferRequest.amount * -1)
 		udb.updateBalance(transferRequest.recipientid, transferRequest.amount)
