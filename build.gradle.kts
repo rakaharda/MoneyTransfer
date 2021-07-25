@@ -26,12 +26,6 @@ dependencies {
 	implementation("org.springdoc:springdoc-openapi-kotlin:1.5.9")
 	runtimeOnly("com.h2database:h2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	val coroutines_version = "1.5.1"
-	implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
-	implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-swing:$coroutines_version")
-	implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$coroutines_version")
-	implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutines_version")
-	implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-debug:$coroutines_version")
 }
 
 tasks.withType<KotlinCompile> {
