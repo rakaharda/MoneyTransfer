@@ -1,0 +1,1 @@
+curl -v POST http://localhost:8080/transfer -H "Content-Type: application/json" -d "{\"senderid\": \"6abea6c6-7b02-456d-9100-727a097a645c\", \"token\": \"5359ebff-f54b-4c86-a06c-559712fe9cb2\", \"recipientid\": \"37da8ca4-7b25-4469-aa1c-622a2edbd128\",\"amount\": 3}"

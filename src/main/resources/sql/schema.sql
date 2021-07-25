@@ -1,9 +1,10 @@
 DROP TABLE IF EXISTS transfers;
+DROP TABLE IF EXISTS users;
 
 CREATE TABLE IF NOT EXISTS users (
     username VARCHAR NOT NULL,
     userid VARCHAR(60)  DEFAULT RANDOM_UUID() PRIMARY KEY,
-    balance FLOAT,
+    balance FLOAT DEFAULT 0,
     token VARCHAR(60) DEFAULT RANDOM_UUID()
 );
 
@@ -16,5 +17,5 @@ CREATE TABLE IF NOT EXISTS transfers (
 );
 
 
-
-INSERT INTO transfers (senderid, recipientid, amount) VALUES('sender', 'recipient', 3);
+INSERT INTO users (username, balance) VALUES('John Smith', 33.5);
+INSERT INTO users (username, balance) VALUES('Ivan Ivanov', -3);
