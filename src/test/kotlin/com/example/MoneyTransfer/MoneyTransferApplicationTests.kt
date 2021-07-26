@@ -235,4 +235,21 @@ class MoneyTransferApplicationTests @Autowired constructor(
 		val e = 1.24f
 		assertThat(f.round(2)).isEqualTo(e)
 	}
+
+	@Test
+	fun `when correct userid return non empty list`() {
+		val users = usersRepository.findUsers()
+		val transferRequest = TransferRequest(
+			users[0].userid,
+			users[0].token,
+			users[users.lastIndex - 1].userid,
+			0.01f
+		)
+		assertThat(transfersRepository.findTransfers(userid = users[0].userid).size).isGreaterThan(0)
+	}
+
+	@Test
+	fun `when incorrect userid return empty list`() {
+		assertThat(transfersRepository.findTransfers(userid = "randomstring").size).isEqualTo(0)
+	}
 }
