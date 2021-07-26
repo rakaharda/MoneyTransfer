@@ -19,3 +19,4 @@ CREATE TABLE IF NOT EXISTS transfers (
 
 INSERT INTO users (username, balance) VALUES('John Smith', 33.5);
 INSERT INTO users (username, balance) VALUES('Ivan Ivanov', 30);
+INSERT INTO users (username, balance) VALUES('Mary Smith', 5);

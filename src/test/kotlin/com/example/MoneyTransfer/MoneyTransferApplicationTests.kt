@@ -3,16 +3,11 @@ package com.example.MoneyTransfer
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.*
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.boot.test.web.client.TestRestTemplate
-import kotlinx.serialization.json.*
-import kotlinx.serialization.*
-import org.springframework.web.util.UriComponentsBuilder
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MoneyTransferApplicationTests @Autowired constructor(
@@ -80,7 +75,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 		}
 		val entity = restTemplate.getForEntity<List<Transfer>>("/transfer?skip=$skip")
 		assertThat(entity.statusCode).isEqualTo(HttpStatus.OK)
-		assertThat(entity.body!!.size).isEqualTo(n - skip)
+		assertThat(entity.body!!.size).isEqualTo(transfersRepository.size() - skip)
 	}
 
 	@Test
@@ -100,7 +95,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 		var count = 0
 		val transfers = transfersRepository.findTransfers()
 		for(t in transfers) if (user.userid == t.senderid || user.userid == t.recipientid) count++
-		val entity = restTemplate.getForEntity<List<Transfer>>("/transfer?userid=$user")
+		val entity = restTemplate.getForEntity<List<Transfer>>("/transfer?userid=${user.userid}")
 		assertThat(entity.statusCode).isEqualTo(HttpStatus.OK)
 		assertThat(entity.body!!.size).isEqualTo(count)
 	}
@@ -230,5 +225,19 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	@Test
 	fun `test`(){
 		val obj = restTemplate.exchange<String>("/transfer", HttpMethod.GET)
+	}
+
+	@Test
+	fun `when decimal less than 5 then round to floor`(){
+		val f = 1.23425f
+		val e = 1.23f
+		assertThat(f.round(2)).isEqualTo(e);
+	}
+
+	@Test
+	fun `when decimal greater than 4 then round to ceil`(){
+		val f = 1.23525f
+		val e = 1.24f
+		assertThat(f.round(2)).isEqualTo(e);
 	}
 }

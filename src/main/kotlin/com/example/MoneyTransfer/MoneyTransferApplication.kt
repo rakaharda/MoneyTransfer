@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.sql.*
+import kotlin.math.round
 
 @SpringBootApplication
 class MoneyTransferApplication
@@ -55,8 +56,10 @@ class TransferService(val db: TransfersRepository, val udb: UsersRepository){
 	fun findTransfers(limit: Int?, skip: Int?, userid: String?): List<Transfer>{
 		val l = limit ?: db.size()
 		val s = skip ?: 0
-		val u = userid ?: "*"
-		return db.findTransfers(l, s, u)
+		return if(userid != null)
+			db.findTransfers(l, s, userid)
+		else
+			db.findTransfers(l, s)
 	}
 
 	fun post(transferRequest: TransferRequest){
@@ -68,6 +71,7 @@ class TransferService(val db: TransfersRepository, val udb: UsersRepository){
 			?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't find recipient ID")
 		if(transferRequest.recipientid == transferRequest.senderid)
 			throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't transfer money to your own account")
+		transferRequest.amount.round(2)
 		if(sender.balance < transferRequest.amount || transferRequest.amount <= 0)
 			throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds")
 		udb.updateBalance(transferRequest.senderid, transferRequest.amount * -1)
@@ -107,10 +111,13 @@ interface UsersRepository : CrudRepository<User, String>
 }
 
 interface TransfersRepository : CrudRepository<Transfer, String>{
+	@Query("select * from transfers limit :limitBot, :limitTop")
+	fun findTransfers(@Param("limitTop") limit: Int = size(),
+					  @Param("limitBot") skip: Int = 0): List<Transfer>
 	@Query("select * from transfers where senderid = :userid or recipientid = :userid limit :limitBot, :limitTop")
 	fun findTransfers(@Param("limitTop") limit: Int = size(),
 					  @Param("limitBot") skip: Int = 0,
-					  @Param("userid") userid: String = "*"): List<Transfer>
+					  @Param("userid") userid: String = ""): List<Transfer>
 	@Query("select count(*) from transfers")
 	fun size() : Int
 }
@@ -140,3 +147,10 @@ data class TransferRequest(
 	val recipientid: String,
 	@Schema(description = "Amount of money to transfer", example = "23.5")
 	val amount: Float)
+
+fun Float.round(decimals: Int): Float
+{
+	var multiplier = 1.0
+	repeat(decimals) { multiplier *= 10 }
+	return (round(this * multiplier) / multiplier).toFloat()
+}
