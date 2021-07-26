@@ -33,13 +33,13 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	}
 
 	@Test
-	fun `correct request for Post with two random users`() {
-		val obj = restTemplate.exchange<List<User>>("/", HttpMethod.GET)
+	fun `request for Post with two last users, expected that last user balance greater than 0`() {
+		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
-			obj.body?.get(obj.body!!.lastIndex)?.userid ?: "",
-			obj.body?.get(obj.body!!.lastIndex)?.token ?: "",
-			obj.body?.get(obj.body!!.lastIndex - 1)?.userid ?: "",
-			15f
+			users[users.lastIndex].userid,
+			users[users.lastIndex].token,
+			users[users.lastIndex - 1].userid,
+			users[users.lastIndex].balance
 		)
 		val responseEntity = restTemplate.postForEntity<String>("/transfer", transferRequest)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
@@ -47,12 +47,12 @@ class MoneyTransferApplicationTests @Autowired constructor(
 
 	@Test
 	fun `bad request with bad senderid`() {
-		val obj = restTemplate.exchange<List<User>>("/", HttpMethod.GET)
+		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
 			"somerandomtext",
-			obj.body?.get(obj.body!!.lastIndex)?.token ?: "",
-			obj.body?.get(obj.body!!.lastIndex - 1)?.userid ?: "",
-			15f
+			users[users.lastIndex].token,
+			users[users.lastIndex - 1].userid,
+			users[users.lastIndex].balance
 		)
 		val responseEntity = restTemplate.postForEntity<String>("/transfer", transferRequest)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
@@ -60,12 +60,12 @@ class MoneyTransferApplicationTests @Autowired constructor(
 
 	@Test
 	fun `bad request with bad recipientid`() {
-		val obj = restTemplate.exchange<List<User>>("/", HttpMethod.GET)
+		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
-			obj.body?.get(obj.body!!.lastIndex)?.userid ?: "",
-			obj.body?.get(obj.body!!.lastIndex)?.token ?: "",
+			users[users.lastIndex].userid,
+			users[users.lastIndex].token,
 			"",
-			obj.body?.get(obj.body!!.lastIndex)?.balance ?: 0f
+			users[users.lastIndex].balance
 		)
 		val responseEntity = restTemplate.postForEntity<String>("/transfer", transferRequest)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
@@ -73,12 +73,12 @@ class MoneyTransferApplicationTests @Autowired constructor(
 
 	@Test
 	fun `bad request with equal senderid and recipientid`() {
-		val obj = restTemplate.exchange<List<User>>("/", HttpMethod.GET)
+		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
-			obj.body?.get(obj.body!!.lastIndex)?.userid ?: "",
-			obj.body?.get(obj.body!!.lastIndex)?.token ?: "",
-			obj.body?.get(obj.body!!.lastIndex)?.userid ?: "",
-			obj.body?.get(obj.body!!.lastIndex)?.balance ?: 0f
+			users[users.lastIndex].userid,
+			users[users.lastIndex].token,
+			users[users.lastIndex].userid,
+			users[users.lastIndex].balance
 		)
 		val responseEntity = restTemplate.postForEntity<String>("/transfer", transferRequest)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
@@ -86,12 +86,12 @@ class MoneyTransferApplicationTests @Autowired constructor(
 
 	@Test
 	fun `bad request with wrong token`() {
-		val obj = restTemplate.exchange<List<User>>("/", HttpMethod.GET)
+		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
-			obj.body?.get(obj.body!!.lastIndex)?.userid ?: "",
-			"1234567890",
-			obj.body?.get(obj.body!!.lastIndex)?.userid ?: "",
-			obj.body?.get(obj.body!!.lastIndex)?.balance ?: 0f
+			users[users.lastIndex].userid,
+			users[users.lastIndex].token,
+			users[users.lastIndex - 1].userid,
+			users[users.lastIndex].balance
 		)
 		val responseEntity = restTemplate.postForEntity<String>("/transfer", transferRequest)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
@@ -99,12 +99,12 @@ class MoneyTransferApplicationTests @Autowired constructor(
 
 	@Test
 	fun `bad request with negative amount`() {
-		val obj = restTemplate.exchange<List<User>>("/", HttpMethod.GET)
+		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
-			obj.body?.get(obj.body!!.lastIndex)?.userid ?: "",
-			obj.body?.get(obj.body!!.lastIndex)?.token ?: "",
-			obj.body?.get(obj.body!!.lastIndex)?.userid ?: "",
-			-15f
+			users[users.lastIndex].userid,
+			users[users.lastIndex].token,
+			users[users.lastIndex - 1].userid,
+			users[users.lastIndex].balance * -1f
 		)
 		val responseEntity = restTemplate.postForEntity<String>("/transfer", transferRequest)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
@@ -112,12 +112,12 @@ class MoneyTransferApplicationTests @Autowired constructor(
 
 	@Test
 	fun `bad request with amount bigger than balance`() {
-		val obj = restTemplate.exchange<List<User>>("/", HttpMethod.GET)
+		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
-			obj.body?.get(obj.body!!.lastIndex)?.userid ?: "",
-			obj.body?.get(obj.body!!.lastIndex)?.token ?: "",
-			obj.body?.get(obj.body!!.lastIndex)?.userid ?: "",
-			obj.body?.get(obj.body!!.lastIndex)?.balance?.plus(1f) ?: 0f
+			users[users.lastIndex].userid,
+			users[users.lastIndex].token,
+			users[users.lastIndex - 1].userid,
+			users[users.lastIndex].balance + 1f
 		)
 		val responseEntity = restTemplate.postForEntity<String>("/transfer", transferRequest)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)

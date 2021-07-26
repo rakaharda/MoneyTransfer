@@ -39,10 +39,6 @@ class TransferResource(val service: TransferService) {
 class UserResource(val service: UserService) {
 	@GetMapping()
 	fun index(): List<User> = service.findUsers()
-	@PostMapping()
-	fun post(@RequestBody user: User){
-		service.post(user)
-	}
 }
 
 @Service
@@ -103,7 +99,7 @@ interface TransfersRepository : CrudRepository<Transfer, String>{
 }
 
 @Table("USERS")
-data class User(val username: String, @Id val userid: String?, var balance: Float, val token: String?)
+data class User(val username: String, @Id val userid: String, var balance: Float, val token: String)
 
 @Table("TRANSFERS")
 data class Transfer(@Id val transferid: String?, var transferdate: Timestamp?, var senderid: String, var recipientid: String, var amount: Float)
