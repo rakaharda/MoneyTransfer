@@ -1,11 +1,7 @@
 package com.example.MoneyTransfer
 
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.ArraySchema
-import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.data.annotation.Id
@@ -46,7 +42,7 @@ class TransferResource(val service: TransferService) {
 
 @RestController
 class UserResource(val service: UserService) {
-	@GetMapping()
+	@GetMapping
 	fun index(): List<User> = service.findUsers()
 }
 
@@ -76,7 +72,7 @@ class TransferService(val db: TransfersRepository, val udb: UsersRepository){
 			throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds")
 		udb.updateBalance(transferRequest.senderid, transferRequest.amount * -1)
 		udb.updateBalance(transferRequest.recipientid, transferRequest.amount)
-		val transfer: Transfer = Transfer(
+		val transfer = Transfer(
 			null,
 			Timestamp(System.currentTimeMillis()),
 			transferRequest.senderid,
@@ -117,7 +113,7 @@ interface TransfersRepository : CrudRepository<Transfer, String>{
 	@Query("select * from transfers where senderid = :userid or recipientid = :userid limit :limitBot, :limitTop")
 	fun findTransfers(@Param("limitTop") limit: Int = size(),
 					  @Param("limitBot") skip: Int = 0,
-					  @Param("userid") userid: String = ""): List<Transfer>
+					  @Param("userid") userid: String): List<Transfer>
 	@Query("select count(*) from transfers")
 	fun size() : Int
 }
