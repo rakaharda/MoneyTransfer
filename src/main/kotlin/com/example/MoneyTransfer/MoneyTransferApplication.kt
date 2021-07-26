@@ -1,6 +1,11 @@
 package com.example.MoneyTransfer
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.ArraySchema
+import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.data.annotation.Id
@@ -11,10 +16,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.sql.*
 
@@ -28,8 +30,13 @@ fun main(args: Array<String>) {
 
 @RestController
 class TransferResource(val service: TransferService) {
+	@Operation(summary = "Returns list of transfers with specified parameters")
 	@GetMapping("/transfer")
-	fun index(): List<Transfer> = service.findTransfers()
+	fun index(@RequestParam(name = "limit", required = false) limit: Int?,
+			  @RequestParam(name = "skip", required = false) skip: Int?,
+			  @RequestParam(name = "userid", required = false) userid: String?):
+			List<Transfer> = service.findTransfers(limit, skip, userid)
+	@Operation(summary = "Makes transfer between accounts")
 	@PostMapping("/transfer")
 	fun post(@RequestBody transferRequest: TransferRequest){
 		service.post(transferRequest)
@@ -45,11 +52,16 @@ class UserResource(val service: UserService) {
 @Service
 class TransferService(val db: TransfersRepository, val udb: UsersRepository){
 
-	fun findTransfers(): List<Transfer> = db.findTransfers()
+	fun findTransfers(limit: Int?, skip: Int?, userid: String?): List<Transfer>{
+		val l = limit ?: db.size()
+		val s = skip ?: 0
+		val u = userid ?: "*"
+		return db.findTransfers(l, s, u)
+	}
 
 	fun post(transferRequest: TransferRequest){
 		val sender = udb.findUser(transferRequest.senderid)
-			?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong sender ID")
+			?:  throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong sender ID")
 		if(sender.token != transferRequest.token)
 			throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong token")
 		udb.findUser(transferRequest.recipientid)
@@ -95,8 +107,12 @@ interface UsersRepository : CrudRepository<User, String>
 }
 
 interface TransfersRepository : CrudRepository<Transfer, String>{
-	@Query("select * from transfers")
-	fun findTransfers(): List<Transfer>
+	@Query("select * from transfers where senderid = :userid or recipientid = :userid limit :limitBot, :limitTop")
+	fun findTransfers(@Param("limitTop") limit: Int = size(),
+					  @Param("limitBot") skip: Int = 0,
+					  @Param("userid") userid: String = "*"): List<Transfer>
+	@Query("select count(*) from transfers")
+	fun size() : Int
 }
 
 @Table("USERS")
@@ -118,7 +134,7 @@ data class Transfer(
 data class TransferRequest(
 	@Schema(description = "UUID of the sender", format="uuid", example = "\"2e250f45-0884-4b75-8fc3-4a645197fd30\"")
 	val senderid: String,
-	@Schema(description = "Token of the sender", example = "\"5bb3c7f4-e9fa-490c-b6e6-e46e681838f6\"")
+	@Schema(description = "Token of the sender", example = "5bb3c7f4-e9fa-490c-b6e6-e46e681838f6")
 	val token: String,
 	@Schema(description = "UUID of the recipient", format="uuid", example = "\"5717ed3f-a95a-4c38-9e5e-484916e6786e\"")
 	val recipientid: String,
