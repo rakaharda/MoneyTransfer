@@ -33,7 +33,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	}
 
 	@Test
-	fun `request for Post with two last users, expected that last user balance greater than 0`() {
+	fun `when correct request then return, tests last 2 users in db, expecting last user balance not 0`() {
 		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
 			users[users.lastIndex].userid,
@@ -46,7 +46,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	}
 
 	@Test
-	fun `bad request with bad senderid`() {
+	fun `when invalid senderid then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
 			"somerandomtext",
@@ -59,7 +59,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	}
 
 	@Test
-	fun `bad request with bad recipientid`() {
+	fun `when invalid recipientid then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
 			users[users.lastIndex].userid,
@@ -72,7 +72,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	}
 
 	@Test
-	fun `bad request with equal senderid and recipientid`() {
+	fun `when senderid equals recipientid then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
 			users[users.lastIndex].userid,
@@ -85,11 +85,11 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	}
 
 	@Test
-	fun `bad request with wrong token`() {
+	fun `when invalid token then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
 			users[users.lastIndex].userid,
-			users[users.lastIndex].token,
+			"1234567890",
 			users[users.lastIndex - 1].userid,
 			users[users.lastIndex].balance
 		)
@@ -98,7 +98,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	}
 
 	@Test
-	fun `bad request with negative amount`() {
+	fun `when amount is negative then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
 			users[users.lastIndex].userid,
@@ -111,7 +111,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	}
 
 	@Test
-	fun `bad request with amount bigger than balance`() {
+	fun `when amount greater than balance then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
 		val transferRequest: TransferRequest = TransferRequest(
 			users[users.lastIndex].userid,
