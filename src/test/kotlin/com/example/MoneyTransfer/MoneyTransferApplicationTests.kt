@@ -26,7 +26,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 		for(i in 1..10)
 		{
 			val users = usersRepository.findUsers()
-			val transferRequest: TransferRequest = TransferRequest(
+			val transferRequest = TransferRequest(
 				users[users.lastIndex].userid,
 				users[users.lastIndex].token,
 				users[users.lastIndex - 1].userid,
@@ -45,7 +45,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 		for(i in 1..10)
 		{
 			val users = usersRepository.findUsers()
-			val transferRequest: TransferRequest = TransferRequest(
+			val transferRequest = TransferRequest(
 				users[users.lastIndex].userid,
 				users[users.lastIndex].token,
 				users[users.lastIndex - 1].userid,
@@ -65,7 +65,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 		for(i in 1..n)
 		{
 			val users = usersRepository.findUsers()
-			val transferRequest: TransferRequest = TransferRequest(
+			val transferRequest = TransferRequest(
 				users[users.lastIndex].userid,
 				users[users.lastIndex].token,
 				users[users.lastIndex - 1].userid,
@@ -83,7 +83,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 		for(i in 1..10)
 		{
 			val users = usersRepository.findUsers()
-			val transferRequest: TransferRequest = TransferRequest(
+			val transferRequest = TransferRequest(
 				users[0].userid,
 				users[0].token,
 				users[users.lastIndex - 1].userid,
@@ -105,7 +105,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 		for(i in 1..10)
 		{
 			val users = usersRepository.findUsers()
-			val transferRequest: TransferRequest = TransferRequest(
+			val transferRequest = TransferRequest(
 				users[0].userid,
 				users[0].token,
 				users[users.lastIndex - 1].userid,
@@ -126,7 +126,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	fun `find user by userid`() {
 		val entity = restTemplate.exchange<List<User>>("/", HttpMethod.GET)
 		for (user in entity.body!!) {
-			val foundUser = user.userid?.let { usersRepository.findUser(it) }
+			val foundUser = usersRepository.findUser(user.userid)
 			assertThat(foundUser).isEqualTo(user)
 		}
 	}
@@ -134,7 +134,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	@Test
 	fun `when correct request then return OK, tests last 2 users in db, expecting last user balance not 0`() {
 		val users = usersRepository.findUsers()
-		val transferRequest: TransferRequest = TransferRequest(
+		val transferRequest = TransferRequest(
 			users[users.lastIndex].userid,
 			users[users.lastIndex].token,
 			users[users.lastIndex - 1].userid,
@@ -147,7 +147,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	@Test
 	fun `when invalid senderid then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
-		val transferRequest: TransferRequest = TransferRequest(
+		val transferRequest = TransferRequest(
 			"somerandomtext",
 			users[users.lastIndex].token,
 			users[users.lastIndex - 1].userid,
@@ -160,7 +160,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	@Test
 	fun `when invalid recipientid then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
-		val transferRequest: TransferRequest = TransferRequest(
+		val transferRequest = TransferRequest(
 			users[users.lastIndex].userid,
 			users[users.lastIndex].token,
 			"",
@@ -173,7 +173,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	@Test
 	fun `when senderid equals recipientid then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
-		val transferRequest: TransferRequest = TransferRequest(
+		val transferRequest = TransferRequest(
 			users[users.lastIndex].userid,
 			users[users.lastIndex].token,
 			users[users.lastIndex].userid,
@@ -186,7 +186,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	@Test
 	fun `when invalid token then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
-		val transferRequest: TransferRequest = TransferRequest(
+		val transferRequest = TransferRequest(
 			users[users.lastIndex].userid,
 			"1234567890",
 			users[users.lastIndex - 1].userid,
@@ -199,7 +199,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	@Test
 	fun `when amount is negative then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
-		val transferRequest: TransferRequest = TransferRequest(
+		val transferRequest = TransferRequest(
 			users[users.lastIndex].userid,
 			users[users.lastIndex].token,
 			users[users.lastIndex - 1].userid,
@@ -212,7 +212,7 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	@Test
 	fun `when amount greater than balance then return BAD_REQUEST`() {
 		val users = usersRepository.findUsers()
-		val transferRequest: TransferRequest = TransferRequest(
+		val transferRequest = TransferRequest(
 			users[users.lastIndex].userid,
 			users[users.lastIndex].token,
 			users[users.lastIndex - 1].userid,
@@ -223,21 +223,16 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	}
 
 	@Test
-	fun `test`(){
-		val obj = restTemplate.exchange<String>("/transfer", HttpMethod.GET)
-	}
-
-	@Test
 	fun `when decimal less than 5 then round to floor`(){
 		val f = 1.23425f
 		val e = 1.23f
-		assertThat(f.round(2)).isEqualTo(e);
+		assertThat(f.round(2)).isEqualTo(e)
 	}
 
 	@Test
 	fun `when decimal greater than 4 then round to ceil`(){
 		val f = 1.23525f
 		val e = 1.24f
-		assertThat(f.round(2)).isEqualTo(e);
+		assertThat(f.round(2)).isEqualTo(e)
 	}
 }
