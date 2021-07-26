@@ -71,7 +71,7 @@ class TransferService(val db: TransfersRepository, val udb: UsersRepository){
 			?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't find recipient ID")
 		if(transferRequest.recipientid == transferRequest.senderid)
 			throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't transfer money to your own account")
-		transferRequest.amount.round(2)
+		transferRequest.amount = transferRequest.amount.round(2)
 		if(sender.balance < transferRequest.amount || transferRequest.amount <= 0)
 			throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds")
 		udb.updateBalance(transferRequest.senderid, transferRequest.amount * -1)
@@ -146,7 +146,7 @@ data class TransferRequest(
 	@Schema(description = "UUID of the recipient", format="uuid", example = "\"5717ed3f-a95a-4c38-9e5e-484916e6786e\"")
 	val recipientid: String,
 	@Schema(description = "Amount of money to transfer", example = "23.5")
-	val amount: Float)
+	var amount: Float)
 
 fun Float.round(decimals: Int): Float
 {
