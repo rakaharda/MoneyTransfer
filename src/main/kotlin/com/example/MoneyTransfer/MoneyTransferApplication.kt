@@ -60,16 +60,21 @@ class TransferService(val db: TransfersRepository, val udb: UsersRepository){
 
 	fun post(transferRequest: TransferRequest){
 		val sender = udb.findUser(transferRequest.senderid)
-			?:  throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong sender ID")
-		if(sender.token != transferRequest.token)
-			throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong token")
-		udb.findUser(transferRequest.recipientid)
-			?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't find recipient ID")
-		if(transferRequest.recipientid == transferRequest.senderid)
-			throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't transfer money to your own account")
 		transferRequest.amount = transferRequest.amount.round(2)
-		if(sender.balance < transferRequest.amount || transferRequest.amount <= 0)
-			throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds")
+		when {
+			sender == null ->
+				throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong sender ID")
+			sender.token != transferRequest.token ->
+				throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong token")
+			udb.findUser(transferRequest.recipientid) == null ->
+				throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't find recipient ID")
+			transferRequest.recipientid == transferRequest.senderid ->
+				throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Can't transfer money to your own account")
+			sender.balance < transferRequest.amount ->
+				throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds")
+			transferRequest.amount <= 0 ->
+				throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid amount")
+		}
 		udb.updateBalance(transferRequest.senderid, transferRequest.amount * -1)
 		udb.updateBalance(transferRequest.recipientid, transferRequest.amount)
 		val transfer = Transfer(
