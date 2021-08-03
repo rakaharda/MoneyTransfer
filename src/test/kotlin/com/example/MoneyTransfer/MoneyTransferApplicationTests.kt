@@ -1,5 +1,10 @@
-package com.example.MoneyTransfer
+package com.example.moneytransfer
 
+import com.example.moneytransfer.datasource.TransfersRepository
+import com.example.moneytransfer.datasource.UsersRepository
+import com.example.moneytransfer.model.Transfer
+import com.example.moneytransfer.model.TransferRequest
+import com.example.moneytransfer.model.User
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,7 +18,8 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 class MoneyTransferApplicationTests @Autowired constructor(
 	val restTemplate: TestRestTemplate,
 	val usersRepository: UsersRepository,
-	val transfersRepository: TransfersRepository) {
+	val transfersRepository: TransfersRepository
+) {
 
 	@Test
 	fun `assert status code for transfer`() {
@@ -239,12 +245,6 @@ class MoneyTransferApplicationTests @Autowired constructor(
 	@Test
 	fun `when correct userid return non empty list`() {
 		val users = usersRepository.findUsers()
-		val transferRequest = TransferRequest(
-			users[0].userid,
-			users[0].token,
-			users[users.lastIndex - 1].userid,
-			0.01f
-		)
 		assertThat(transfersRepository.findTransfers(userid = users[0].userid).size).isGreaterThan(0)
 	}
 
