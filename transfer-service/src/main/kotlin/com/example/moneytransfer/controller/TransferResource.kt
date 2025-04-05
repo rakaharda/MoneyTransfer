@@ -11,10 +11,8 @@ import java.util.UUID
 class TransferResource(val service: TransferService) {
     @Operation(summary = "Returns list of transfers with specified parameters")
     @GetMapping
-    fun index(@RequestParam(name = "limit", required = false) limit: Int?,
-              @RequestParam(name = "skip", required = false) skip: Int?,
-              @RequestParam(name = "userid", required = false) userid: UUID?):
-            List<Transfer> = service.findTransfers(limit, skip, userid)
+    fun index(@RequestParam(name = "userid", required = false) userid: UUID?):
+            List<Transfer> = service.findTransfers(userid)
     @Operation(summary = "Makes transfer between accounts")
     @PostMapping("/transfer")
     fun post(@RequestBody transferRequest: TransferRequest){

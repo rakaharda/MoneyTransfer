@@ -16,10 +16,13 @@ interface UsersRepository : CrudRepository<User, String>
     fun findUser(@Param("userid")userid: UUID) : User?
 
     @Modifying
-    @Query("update users as u set u.balance = u.balance + :amount where u.userid = :userid")
+    @Query("update users set balance = balance + :amount where userid = :userid")
     fun updateBalance(@Param("userid") userid: UUID, @Param("amount") amount: Float)
 
     @Modifying
     @Query("insert into users (userid, username, balance, token) values (:userid, :username, :balance, :token)")
     fun addUser(@Param("userid") userid: UUID, @Param("username") username: String, @Param("balance") balance: Float, @Param("token") token: UUID)
+    @Modifying
+    @Query("insert into users (username, balance) values (:userid, :username, :balance, :token)")
+    fun addUserAuto(@Param("username") username: String, @Param("balance") balance: Float)
 }

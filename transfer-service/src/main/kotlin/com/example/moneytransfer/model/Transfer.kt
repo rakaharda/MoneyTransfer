@@ -6,7 +6,7 @@ import org.springframework.data.relational.core.mapping.Table
 import java.sql.Timestamp
 import java.util.UUID
 
-@Table("TRANSFERS")
+@Table("transfers")
 data class Transfer(
     @Schema(description = "UUID of the transfer", format="uuid", example = "\"1c864c0a-9a19-41e7-b014-c328be86e9d7\"")
     @Id val transferid: UUID?,

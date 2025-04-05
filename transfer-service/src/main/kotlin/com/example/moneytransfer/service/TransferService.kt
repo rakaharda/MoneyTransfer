@@ -15,13 +15,11 @@ import java.util.UUID
 @Service
 class TransferService(val db: TransfersRepository, val udb: UsersRepository){
 
-    fun findTransfers(limit: Int?, skip: Int?, userid: UUID?): List<Transfer>{
-        val l = limit ?: db.size()
-        val s = skip ?: 0
+    fun findTransfers(userid: UUID?): List<Transfer>{
         return if(userid != null)
-            db.findTransfers(l, s, userid)
+            db.findTransfers(userid)
         else
-            db.findTransfers(l, s)
+            db.findTransfers()
     }
 
     @Transactional

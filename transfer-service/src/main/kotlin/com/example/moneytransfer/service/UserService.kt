@@ -13,4 +13,10 @@ class UserService(val db: UsersRepository){
         return user
     }
 
+    fun addUserAuto(name: String, balance: Float): User {
+        val user = User(name, java.util.UUID.randomUUID(), balance, java.util.UUID.randomUUID())
+        db.addUserAuto(user.username, user.balance)
+        return user
+    }
+
 }
