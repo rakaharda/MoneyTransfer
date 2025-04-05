@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15.2
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./src/main/resources/sql:/docker-entrypoint-initdb.d
+      - ./postgres-data:/var/lib/postgresql/data
+
+  app:
+    image: amazoncorretto:11
+    working_dir: /app
+    volumes:
+    - ./transfer-service/build/libs:/app
+    command: java -jar /app/MoneyTransfer-0.0.1-SNAPSHOT.jar
+    depends_on:
+      - db
+    links:
+      - db
+    ports:
+      - "8080:8080"
