@@ -15,7 +15,5 @@ CREATE TABLE IF NOT EXISTS transfers (
     FOREIGN KEY (recipientid) REFERENCES users(userid)
 );
 
-ALTER TABLE transfers (
-    FOREIGN KEY (senderid) REFERENCES users(userid),
-    FOREIGN KEY (recipientid) REFERENCES users(userid)
-);
+ALTER TABLE transfers ADD FOREIGN KEY (senderid) REFERENCES users(userid);
+ALTER TABLE transfers ADD FOREIGN KEY (recipientid) REFERENCES users(userid);
