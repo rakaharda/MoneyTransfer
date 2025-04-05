@@ -10,7 +10,7 @@ import java.util.UUID
 @RestController
 class TransferResource(val service: TransferService) {
     @Operation(summary = "Returns list of transfers with specified parameters")
-    @GetMapping("/transfer")
+    @GetMapping
     fun index(@RequestParam(name = "limit", required = false) limit: Int?,
               @RequestParam(name = "skip", required = false) skip: Int?,
               @RequestParam(name = "userid", required = false) userid: UUID?):

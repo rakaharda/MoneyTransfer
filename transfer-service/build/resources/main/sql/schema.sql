@@ -10,5 +10,7 @@ CREATE TABLE IF NOT EXISTS transfers (
     transferdate timestamp with time zone DEFAULT now(),
     senderid uuid NOT NULL,
     recipientid uuid NOT NULL,
-    amount FLOAT NOT NULL
+    amount FLOAT NOT NULL,
+    FOREIGN KEY (senderid) REFERENCES users(userid),
+    FOREIGN KEY (recipientid) REFERENCES users(userid)
 );
